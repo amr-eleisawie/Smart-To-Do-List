@@ -29,7 +29,7 @@ app/
 ## Installation
 
 ### Prerequisites
-
+- Python 3.8+
 - pip (Python package manager)
 
 ### Setup
