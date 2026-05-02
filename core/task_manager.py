@@ -1,52 +1,59 @@
-import streamlit as st
-from core.task_manager import TaskManager
+import json
+import os
+from datetime import datetime
 
-# init
-tm = TaskManager()
+class TaskManager:
+    def __init__(self, file_path="data/tasks.json"):
+        self.file_path = file_path
+        self.tasks = self.load_tasks()
 
-st.title("🧠 Smart To-Do List")
+    def load_tasks(self):
+        """Load tasks from JSON file"""
+        if os.path.exists(self.file_path):
+            with open(self.file_path, 'r') as f:
+                return json.load(f)
+        return []
 
-# ------------------------
-# ➕ Add Task
-# ------------------------
-st.subheader("Add New Task")
+    def save_tasks(self):
+        """Save tasks to JSON file"""
+        os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
+        with open(self.file_path, 'w') as f:
+            json.dump(self.tasks, f, indent=2)
 
-title = st.text_input("Task Title")
-priority = st.selectbox("Priority", ["Low", "Medium", "High"])
+    def add_task(self, title, priority="Medium"):
+        """Add a new task"""
+        task = {
+            "id": len(self.tasks) + 1,
+            "title": title,
+            "priority": priority,
+            "status": "Pending",
+            "created_at": datetime.now().isoformat()
+        }
+        self.tasks.append(task)
+        self.save_tasks()
+        return task
 
-if st.button("Add Task"):
-    if title:
-        tm.add_task(title, priority)
-        st.success("Task added!")
-        st.rerun()
-    else:
-        st.error("Please enter a task")
+    def get_tasks(self):
+        """Get all tasks"""
+        return self.tasks
 
-# ------------------------
-# 📋 Show Tasks
-# ------------------------
-st.subheader("Your Tasks")
+    def mark_done(self, task_id):
+        """Mark a task as done"""
+        for task in self.tasks:
+            if task["id"] == task_id:
+                task["status"] = "Done"
+                self.save_tasks()
+                return task
+        return None
 
-tasks = tm.get_tasks()
+    def delete_task(self, task_id):
+        """Delete a task"""
+        self.tasks = [task for task in self.tasks if task["id"] != task_id]
+        self.save_tasks()
 
-for task in tasks:
-    col1, col2, col3, col4 = st.columns([4,2,2,2])
-
-    with col1:
-        if task["status"] == "Done":
-            st.markdown(f"~~{task['title']}~~")
-        else:
-            st.write(task["title"])
-
-    with col2:
-        st.write(task["priority"])
-
-    with col3:
-        if st.button("✅ Done", key=f"done_{task['id']}"):
-            tm.mark_done(task["id"])
-            st.rerun()
-
-    with col4:
-        if st.button("❌ Delete", key=f"del_{task['id']}"):
-            tm.delete_task(task["id"])
-            st.rerun()
+    def get_task(self, task_id):
+        """Get a specific task"""
+        for task in self.tasks:
+            if task["id"] == task_id:
+                return task
+        return None
