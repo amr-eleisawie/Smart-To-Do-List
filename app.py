@@ -69,27 +69,3 @@ class TaskManager:
         return result
 
 
-# Demo/Test the TaskManager
-if __name__ == "__main__":
-    tm = TaskManager()
-
-    print("🧠 Smart To-Do List Demo")
-    print("=" * 30)
-
-    # Add some sample tasks
-    tm.add_task("Complete project documentation", "High")
-    tm.add_task("Review code changes", "Medium")
-    tm.add_task("Update README", "Low")
-
-    print("\n📋 Current Tasks:")
-    tasks = tm.get_tasks()
-    print(tm.format_tasks(tasks))
-
-    # Mark first task as done
-    if tasks:
-        tm.mark_done(tasks[0]["id"])
-        print("\n✅ After marking first task as done:")
-        tasks = tm.get_tasks()
-        print(tm.format_tasks(tasks))
-
-    print("\n🎉 Demo completed!")
